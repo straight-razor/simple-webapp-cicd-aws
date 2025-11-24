@@ -39,10 +39,27 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-      - name: Run CodeQL analysis
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          # languages should be set on init
+          languages: javascript
+          # provide the token explicitly to ensure permissions for uploads
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Autobuild for CodeQL
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v2
         with:
-          languages: javascript
+          # ensure analyze has token access if required
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload SARIF (CodeQL results)
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
 
       - name: Run Snyk SAST
         env:
