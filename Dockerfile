@@ -12,8 +12,6 @@ RUN npm install
 # Copy the source code
 COPY src ./src
 
-# Copy the tests
-COPY tests ./tests
 
 # Expose the application port
 EXPOSE 3000
