@@ -40,7 +40,7 @@ jobs:
         run: npm test
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           # languages should be set on init
           languages: javascript
@@ -48,20 +48,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Autobuild for CodeQL
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v3
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           # ensure analyze has token access if required
           token: ${{ secrets.GITHUB_TOKEN }}
-          # write SARIF to a known file so we can upload it explicitly
-          output: results.sarif
-
-      - name: Upload SARIF (CodeQL results)
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
 
       - name: Run Snyk SAST
         env:
