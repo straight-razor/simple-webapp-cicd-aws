@@ -1,0 +1,42 @@
+name: IaC Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  tfsec:
+    name: Run tfsec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      - name: Install tfsec
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | sh
+
+      - name: Run tfsec
+        run: tfsec infra/terraform
+
+  checkov:
+    name: Run Checkov
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: checkov -d infra/terraform

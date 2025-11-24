@@ -1,0 +1,16 @@
+# Node stuff
+node_modules/
+npm-debug.log*
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+
+# Big installers / binaries
+DockerDesktopInstaller*.exe
+*.exe
