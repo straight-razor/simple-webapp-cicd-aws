@@ -82,7 +82,7 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v1
         with:
-          region: ${{ secrets.AWS_REGION }}
+          mask-password: true
 
       - name: Ensure ECR repository exists
         env:
