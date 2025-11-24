@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run CodeQL analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          languages: javascript
+
+      - name: Run Snyk SAST
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          echo "Running Snyk scan"
+          npm i -g snyk
+          snyk test --severity-threshold=high || true
+
+      - name: Build Docker image
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t simple-webapp:${IMAGE_TAG} .
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Tag & Push to ECR
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          REPO=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/simple-webapp
+          docker tag simple-webapp:${IMAGE_TAG} ${REPO}:${IMAGE_TAG}
+          docker push ${REPO}:${IMAGE_TAG}
+
+      - name: Set output image tag
+        run: echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
