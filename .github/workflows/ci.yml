@@ -84,6 +84,21 @@ jobs:
         with:
           region: ${{ secrets.AWS_REGION }}
 
+      - name: Ensure ECR repository exists
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        run: |
+          set -e
+          REPO_NAME="simple-webapp"
+          echo "Checking for ECR repository: ${REPO_NAME}"
+          if ! aws ecr describe-repositories --repository-names "${REPO_NAME}" --region "${AWS_REGION}" >/dev/null 2>&1; then
+            echo "Repository not found — creating ${REPO_NAME}"
+            aws ecr create-repository --repository-name "${REPO_NAME}" --region "${AWS_REGION}"
+          else
+            echo "ECR repository ${REPO_NAME} already exists"
+          fi
+
       - name: Tag & Push to ECR
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
