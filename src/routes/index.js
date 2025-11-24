@@ -37,4 +37,14 @@ router.get('/exec', (req, res) => {
     });
 });
 
+// Simple data create endpoint used by tests (returns 201 and echoes created data)
+router.post('/data', (req, res) => {
+    const payload = req.body;
+    if (!payload || Object.keys(payload).length === 0) {
+        return res.status(400).json({ error: 'missing body' });
+    }
+    // In a real app we'd persist; for tests just echo with 201 Created
+    res.status(201).json(payload);
+});
+
 module.exports = router;
