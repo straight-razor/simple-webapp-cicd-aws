@@ -55,6 +55,8 @@ jobs:
         with:
           # ensure analyze has token access if required
           token: ${{ secrets.GITHUB_TOKEN }}
+          # write SARIF to a known file so we can upload it explicitly
+          output: results.sarif
 
       - name: Upload SARIF (CodeQL results)
         uses: github/codeql-action/upload-sarif@v2
